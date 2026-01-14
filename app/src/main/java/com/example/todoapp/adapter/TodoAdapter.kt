@@ -33,12 +33,24 @@ class TodoAdapter(
             binding.apply {
                 tvTitle.text = todo.title
                 tvDeadline.text = "Deadline: ${todo.deadline}"
+                
+                // Set listener ke null dulu untuk menghindari trigger saat sync
+                checkboxDone.setOnCheckedChangeListener(null)
                 checkboxDone.isChecked = todo.isDone
-
+                
+                // Setelah set value, baru attach listener
                 checkboxDone.setOnCheckedChangeListener { _, isChecked ->
                     val updatedTodo = todo.copy(isDone = isChecked)
                     onStatusChange(updatedTodo)
                 }
+
+                tvCategory.text = "Category: ${todo.category}"
+                tvPriority.text = when (todo.priority) {
+                    3 -> "Priority: High"
+                    2 -> "Priority: Medium"
+                    else -> "Priority: Low"
+                }
+
 
                 btnEdit.setOnClickListener {
                     onEditClick(todo)
