@@ -4,6 +4,7 @@ package com.example.todoapp.ui
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
@@ -25,12 +26,20 @@ class AddEditTodoDialog(
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogAddEditTodoBinding.inflate(layoutInflater)
 
+        // Setup Spinner for Priority
+        val priorities = arrayOf("Low", "Medium", "High")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, priorities)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerPriority.adapter = adapter
+
         // Set data if editing
         todo?.let {
             binding.etTitle.setText(it.title)
             binding.etDescription.setText(it.description)
             binding.tvDeadline.text = it.deadline
             selectedDeadline = it.deadline
+            binding.spinnerPriority.setSelection(it.priority - 1)
+            binding.etCategory.setText(it.category)
             binding.checkboxStatus.isChecked = it.isDone
         }
 
@@ -70,6 +79,8 @@ class AddEditTodoDialog(
         val title = binding.etTitle.text.toString().trim()
         val description = binding.etDescription.text.toString().trim()
         val isDone = binding.checkboxStatus.isChecked
+        val category = binding.etCategory.text.toString().trim()
+        val priority = binding.spinnerPriority.selectedItemPosition + 1
 
         if (title.isEmpty()) {
             Toast.makeText(context, "Title is required", Toast.LENGTH_SHORT).show()
@@ -81,11 +92,18 @@ class AddEditTodoDialog(
             return
         }
 
+        if (category.isEmpty()) {
+            Toast.makeText(context, "Category is required", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val newTodo = Todo(
             id = todo?.id ?: 0,
             title = title,
             description = description,
             deadline = selectedDeadline,
+            priority = priority,
+            category = category,
             isDone = isDone
         )
 
