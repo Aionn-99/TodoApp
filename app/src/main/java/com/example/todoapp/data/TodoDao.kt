@@ -1,4 +1,3 @@
-// File: app/src/main/java/com/example/todoapp/data/TodoDao.kt
 package com.example.todoapp.data
 
 import androidx.lifecycle.LiveData
@@ -17,4 +16,10 @@ interface TodoDao {
 
     @Delete
     suspend fun delete(todo: Todo)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(todos: List<Todo>)
+
+    @Query("DELETE FROM todo")
+    suspend fun deleteAll()
 }
