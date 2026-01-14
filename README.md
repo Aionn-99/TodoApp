@@ -1,114 +1,105 @@
----
+# 🗂️ Todo App — Hybrid MVVM Architecture
 
-# 🗂️ Todo App — MVVM + Repository Pattern + Room
-
-A simple yet modern Android Todo application built with **MVVM architecture**, **Repository Pattern**, and **Room Database**.
-This project separates the UI, data management, and business logic clearly—making the app scalable, testable, and maintainable.
+Aplikasi Todo Android dengan **MVVM + Repository Pattern**, menggabungkan **Room Database** (offline) dan **REST API Backend** (online sync) menggunakan **Retrofit**.
 
 ---
 
-## 📐 Arsitektur Utama
+## ✨ Fitur Utama
 
-Aplikasi ini menggunakan kombinasi **MVVM (Model–View–ViewModel)** dan **Repository Pattern**.
-Alur datanya sebagai berikut:
+- ✅ **Offline-First**: Data tersimpan lokal dengan Room Database
+- 🌐 **Online Sync**: Sinkronisasi otomatis dengan server PHP backend
+- 🔄 **Auto Sync**: Checkbox otomatis tersinkronisasi dengan server
+- 🏗️ **Clean Architecture**: MVVM + Repository Pattern
+- 📱 **Modern UI**: Material Design dengan RecyclerView
+
+---
+
+## 📐 Arsitektur
+
+Aplikasi menggunakan **Hybrid Architecture**:
 
 ```
-View (UI Layer) ↔ ViewModel ↔ Repository ↔ Model (Data Layer)
+UI Layer (View)
+    ↕
+ViewModel
+    ↕
+Repository (SSOT)
+    ↕
+Local (Room) + Remote (Retrofit API)
 ```
 
----
+### Komponen Utama:
 
-## 📁 Struktur & Penjelasan Komponen
+**1. UI Layer**
 
-### 1️⃣ View (UI Layer)
+- `MainActivity.kt` - Activity utama
+- `TodoAdapter.kt` - RecyclerView adapter
+- `AddEditTodoDialog.kt` - Dialog tambah/edit
+- Layout XML (`dialog_add_edit_todo.xml`, `item_todo.xml`)
 
-Lapisan yang berinteraksi langsung dengan pengguna.
+**2. ViewModel**
 
-Berisi:
+- `TodoViewModel.kt` - Mengelola UI state & logika bisnis
 
-* `Activity` / `Fragment`
-* Layout XML
+**3. Repository**
 
-  * `dialog_add_edit_todo.xml`
-  * `item_todo.xml`
-* `TodoAdapter`
+- `TodoRepository.kt` - Single Source of Truth, koordinasi data lokal & remote
 
-**Tugas utama:**
+**4. Data Layer**
 
-* Menampilkan data yang diberikan oleh `ViewModel`.
-* Mengirim event pengguna (klik tombol, input teks, dll) ke `ViewModel`.
-
----
-
-### 2️⃣ ViewModel (`TodoViewModel.kt`)
-
-Berfungsi sebagai jembatan antara **View** dan **Repository**.
-
-**Tugas utama:**
-
-* Mengelola data terkait UI.
-* Menjaga data tetap survive saat konfigurasi berubah (misal rotasi layar).
-* Meminta data ke Repository dan menyiapkannya untuk View.
-
-ViewModel **tidak tahu detail penyimpanan data**, hanya tahu cara memintanya.
+- **Local**: `TodoDatabase.kt`, `TodoDao.kt`, `Todo.kt`
+- **Remote**: `ApiClient.kt`, `ApiService.kt` (Retrofit)
+- **Backend API**: Folder `/api` (PHP - CRUD endpoints)
 
 ---
 
-### 3️⃣ Repository (`TodoRepository.kt`)
+## 🔄 Alur Data
 
-Disebut juga sebagai:
+**Menambah Todo:**
 
-> **Single Source of Truth (SSOT)**
+1. User input di UI → ViewModel
+2. ViewModel → Repository
+3. Repository → Simpan ke Room (offline) → Sync ke API (online)
+4. Response → Update UI via LiveData
 
-**Tugas utama:**
+**Checkbox Sync:**
 
-* Menentukan dari mana data diambil (database lokal / network).
-* Mengelola dan membungkus seluruh operasi data.
-* Mengisolasi ViewModel dari sumber data langsung.
-
-Di proyek ini Repository terhubung langsung dengan **Room Database**.
-
----
-
-### 4️⃣ Model (Data Layer)
-
-Lapisan penyimpanan dan manajemen data.
-
-Berisi:
-
-* `TodoDatabase.kt` (Room)
-* Data entity seperti:
-
-  * `Todo.kt`
-
-**Tugas utama:**
-
-* Mengelola data aplikasi secara persisten di perangkat.
-* Room menyediakan abstract layer di atas SQLite sehingga lebih aman dan mudah.
+- Toggle checkbox → Auto update Room → API call `update_todo.php`
+- Lihat detail di `SYNC_CHECKBOX_GUIDE.md`
 
 ---
 
-## 🔄 Alur Kerja Data
+## 🛠️ Tech Stack
 
-Contoh ketika pengguna menambahkan to-do baru:
-
-1. User mengisi form di UI → View mengirim event ke ViewModel
-2. ViewModel memanggil Repository
-3. Repository menyimpan data ke Room Database
-4. Database mengirim kembali data terbaru
-5. ViewModel memancarkan data ke View
-6. UI menampilkan data yang sudah terupdate
-
----
-
-## 📝 Singkatnya
-
-Arsitektur ini memberikan:
-
-✔ Struktur kode rapi
-✔ Mudah diuji
-✔ Perubahan UI tidak memengaruhi data layer
-✔ ViewModel aman dari perubahan konfigurasi
+- **Kotlin** - Bahasa pemrograman
+- **Room** - Database lokal (SQLite)
+- **Retrofit** - HTTP client untuk REST API
+- **Gson** - JSON serialization
+- **Coroutines** - Asynchronous programming
+- **LiveData** - Observable data holder
+- **Material Design** - UI components
+- **PHP + MySQL** - Backend API
 
 ---
 
+## 📂 Backend API
+
+Folder `/api` berisi:
+
+- `koneksi.php` - Database connection
+- `todos.php` - GET all todos
+- `add_todo.php` - POST new todo
+- `update_todo.php` - PUT/PATCH update todo
+- `delete_todo.php` - DELETE todo
+
+---
+
+## 🎯 Keunggulan Arsitektur
+
+✔ **Separation of Concerns** - Pemisahan jelas antar layer  
+✔ **Testable** - Mudah di-unit test  
+✔ **Scalable** - Mudah dikembangkan  
+✔ **Offline Support** - Tetap berfungsi tanpa internet  
+✔ **Data Consistency** - Sinkronisasi otomatis saat online
+
+---
