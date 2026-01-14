@@ -11,5 +11,7 @@ data class Todo(
     val title: String,
     val description: String,
     val deadline: String,
+    val priority: Int,
+    val category: String,
     val isDone: Boolean = false
 )
